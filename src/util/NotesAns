@@ -1,0 +1,35 @@
+
+add conncettoActivedirectory method from AD Job line no 108 to 119 and the down method 
+
+
+	private String updateNotesAttributeInAD(String fieldName,String modifiedPattern) {
+		LDAPOperations ldap = null;
+		String itResourceName = "";
+		long itResourceKey;
+		DirContext ldapContext = null;
+		tcFormInstanceOperationsIntf fi = null;
+		tcResultSet resultSet = null;
+		String userLogin = null;
+		String organizationalUnit = null;
+		String accDN = null;
+		String withoutCompareStatus=null;
+		try {
+			ldap = new LDAPOperations();
+			itResourceKey = ITResourceUtils.getItResource(itResourceName, logger());
+			ldapContext = connectToActiveDirectory(itResourceKey, ldap);
+			fi = platform.getService(tcFormInstanceOperationsIntf.class);
+			resultSet = fi.getProcessFormData(processInstanceKey);
+			userLogin = rs.getStringValue("UD_ADUSER_UID");
+			organizationalUnit = rs.getStringValue("UD_ADUSER_ORGNAME");
+			accDN = "CN=" + userLogin + "," + organizationalUnit;
+			withoutCompareStatus = ldap.updateAccountOnTarget(ldapContext, accDN, fieldName, modifiedPattern);
+		} catch (Exception e) {
+			logger().severe("");
+		}
+		return withoutCompareStatus;
+	}
+
+
+
+// after 203 line in Update Attribute Class
+	updateNotesAttributeInAD(fieldName,modifiedPattern);
